@@ -1,8 +1,7 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Repeat2, Anchor, Code2, ShieldCheck } from 'lucide-react';
 
-const Features: React.FC = () => {
+const Features = () => {
   return (
     <section style={{ padding: '8rem 0', backgroundColor: '#FFFFFF', overflow: 'hidden' }}>
       <div className="container">

@@ -1,9 +1,8 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import phoneMockup from '../assets/wow-phone-mockup.png';
 
-const Hero: React.FC = () => {
+const Hero = () => {
   return (
     <section style={{ overflow: 'hidden', position: 'relative' }}>
       <div className="container">

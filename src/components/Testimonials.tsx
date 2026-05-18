@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 
 const testimonials = [
@@ -19,7 +18,7 @@ const testimonials = [
   }
 ];
 
-const Testimonials: React.FC = () => {
+const Testimonials = () => {
   return (
     <section style={{ padding: '6rem 0', backgroundColor: 'var(--bg-light)', overflow: 'hidden' }}>
       <div className="container">

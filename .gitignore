@@ -1,3 +1,4 @@
 node_modules/
 pids/
+dist/
 .DS_Store
