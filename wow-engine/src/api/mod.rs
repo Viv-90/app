@@ -50,6 +50,11 @@ pub struct HealthResponse {
     pub version: &'static str,
 }
 
+#[derive(Serialize)]
+pub struct ErrorResponse {
+    pub error: String,
+}
+
 pub fn create_router() -> Router {
     Router::new()
         .route("/api/v1/health", get(health_handler))
@@ -124,15 +129,15 @@ async fn health_handler() -> Json<HealthResponse> {
 
 async fn quote_handler(
     Json(payload): Json<QuoteRequest>,
-) -> Result<Json<QuoteResponse>, (StatusCode, String)> {
+) -> Result<Json<QuoteResponse>, (StatusCode, Json<ErrorResponse>)> {
     if payload.source_asset.trim().is_empty() {
-        return Err((StatusCode::BAD_REQUEST, "Source asset cannot be empty".to_string()));
+        return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse { error: "Source asset cannot be empty".to_string() })));
     }
     if payload.dest_asset.trim().is_empty() {
-        return Err((StatusCode::BAD_REQUEST, "Destination asset cannot be empty".to_string()));
+        return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse { error: "Destination asset cannot be empty".to_string() })));
     }
     if payload.amount_in == 0 {
-        return Err((StatusCode::BAD_REQUEST, "Amount in must be greater than zero".to_string()));
+        return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse { error: "Amount in must be greater than zero".to_string() })));
     }
 
     let planner = RoutePlanner::new();
@@ -144,21 +149,21 @@ async fn quote_handler(
         payload.amount_in,
     ).await {
         Ok(routes) => Ok(Json(QuoteResponse { routes })),
-        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(ErrorResponse { error: e.to_string() }))),
     }
 }
 
 async fn deposit_handler(
     Json(payload): Json<DepositRequest>,
-) -> Result<Json<Sep24InteractiveResponse>, (StatusCode, String)> {
+) -> Result<Json<Sep24InteractiveResponse>, (StatusCode, Json<ErrorResponse>)> {
     if let Err(err) = validate_stellar_address(&payload.account) {
-        return Err((StatusCode::BAD_REQUEST, format!("Invalid account address: {}", err)));
+        return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse { error: format!("Invalid account address: {}", err) })));
     }
     if let Err(err) = validate_asset_code(&payload.asset_code) {
-        return Err((StatusCode::BAD_REQUEST, format!("Invalid asset code: {}", err)));
+        return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse { error: format!("Invalid asset code: {}", err) })));
     }
     if payload.anchor_domain.trim().is_empty() {
-        return Err((StatusCode::BAD_REQUEST, "Anchor domain cannot be empty".to_string()));
+        return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse { error: "Anchor domain cannot be empty".to_string() })));
     }
 
     let client = Sep24Client::new();
@@ -168,21 +173,21 @@ async fn deposit_handler(
         &payload.account,
     ).await {
         Ok(tx) => Ok(Json(tx)),
-        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(ErrorResponse { error: e.to_string() }))),
     }
 }
 
 async fn withdraw_handler(
     Json(payload): Json<WithdrawRequest>,
-) -> Result<Json<Sep24InteractiveResponse>, (StatusCode, String)> {
+) -> Result<Json<Sep24InteractiveResponse>, (StatusCode, Json<ErrorResponse>)> {
     if let Err(err) = validate_stellar_address(&payload.account) {
-        return Err((StatusCode::BAD_REQUEST, format!("Invalid account address: {}", err)));
+        return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse { error: format!("Invalid account address: {}", err) })));
     }
     if let Err(err) = validate_asset_code(&payload.asset_code) {
-        return Err((StatusCode::BAD_REQUEST, format!("Invalid asset code: {}", err)));
+        return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse { error: format!("Invalid asset code: {}", err) })));
     }
     if payload.anchor_domain.trim().is_empty() {
-        return Err((StatusCode::BAD_REQUEST, "Anchor domain cannot be empty".to_string()));
+        return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse { error: "Anchor domain cannot be empty".to_string() })));
     }
 
     let client = Sep24Client::new();
@@ -192,24 +197,24 @@ async fn withdraw_handler(
         &payload.account,
     ).await {
         Ok(tx) => Ok(Json(tx)),
-        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(ErrorResponse { error: e.to_string() }))),
     }
 }
 
 async fn anchor_quote_handler(
     Json(payload): Json<AnchorQuoteRequest>,
-) -> Result<Json<Sep38Quote>, (StatusCode, String)> {
+) -> Result<Json<Sep38Quote>, (StatusCode, Json<ErrorResponse>)> {
     if let Err(err) = validate_asset_code(&payload.sell_asset) {
-        return Err((StatusCode::BAD_REQUEST, format!("Invalid sell asset: {}", err)));
+        return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse { error: format!("Invalid sell asset: {}", err) })));
     }
     if let Err(err) = validate_asset_code(&payload.buy_asset) {
-        return Err((StatusCode::BAD_REQUEST, format!("Invalid buy asset: {}", err)));
+        return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse { error: format!("Invalid buy asset: {}", err) })));
     }
     if payload.sell_amount <= 0.0 {
-        return Err((StatusCode::BAD_REQUEST, "Sell amount must be greater than zero".to_string()));
+        return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse { error: "Sell amount must be greater than zero".to_string() })));
     }
     if payload.anchor_domain.trim().is_empty() {
-        return Err((StatusCode::BAD_REQUEST, "Anchor domain cannot be empty".to_string()));
+        return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse { error: "Anchor domain cannot be empty".to_string() })));
     }
 
     let client = Sep38Client::new();
@@ -220,7 +225,7 @@ async fn anchor_quote_handler(
         payload.sell_amount,
     ).await {
         Ok(quote) => Ok(Json(quote)),
-        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(ErrorResponse { error: e.to_string() }))),
     }
 }
 
