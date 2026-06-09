@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 
 export default function AnchorSimulator() {
   const [anchorDomain, setAnchorDomain] = useState('testanchor.stellar.org');
@@ -48,16 +49,22 @@ export default function AnchorSimulator() {
 
   return (
     <section id="anchors" className="container" style={{ padding: '4rem 1.5rem' }}>
-      <div style={{
-        background: 'var(--glass-bg)',
-        backdropFilter: 'blur(12px)',
-        border: '1px solid var(--glass-border)',
-        borderRadius: '1.5rem',
-        padding: '3rem',
-        boxShadow: 'var(--shadow-lg)',
-        maxWidth: '800px',
-        margin: '0 auto'
-      }}>
+      <motion.div 
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        style={{
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid var(--glass-border)',
+          borderRadius: '1.5rem',
+          padding: '3rem',
+          boxShadow: 'var(--shadow-lg)',
+          maxWidth: '800px',
+          margin: '0 auto'
+        }}
+      >
         <h2 className="section-title text-gradient" style={{ marginBottom: '1rem' }}>
           Stellar Anchor Flow Simulator
         </h2>
@@ -157,7 +164,7 @@ export default function AnchorSimulator() {
             </a>
           </div>
         )}
-      </div>
+      </motion.div>
     </section>
   );
 }
