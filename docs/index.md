@@ -4,7 +4,6 @@ The Whales of Wallstreet (WOW) ecosystem is a multi-product financial routing an
 
 It consists of:
 
-- Marketing Site (this docs site)
 - Web App
 - Native App
 - Wow Engine (core backend)
