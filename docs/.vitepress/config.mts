@@ -1,4 +1,6 @@
 export default {
+    base: "/whales-of-wallstreet/",
+
     title: "Whales of Wallstreet",
     description: "WOW Monorepo Documentation",
 
