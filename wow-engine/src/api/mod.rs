@@ -52,6 +52,7 @@ pub struct HealthResponse {
     pub status: &'static str,
     pub service: &'static str,
     pub version: &'static str,
+    pub timestamp: String,
 }
 
 #[derive(Serialize)]
@@ -90,6 +91,7 @@ async fn health_handler() -> Json<HealthResponse> {
         status: "ok",
         service: "wow-engine",
         version: "0.1.0",
+        timestamp: chrono::Utc::now().to_rfc3339(),
     })
 }
 
