@@ -777,6 +777,8 @@ const DepositScreen = ({ onAddMoney }: { onAddMoney: (amt: number) => void }) =>
   const [tab, setTab] = useState<"deposit" | "request">("deposit");
   const [amount, setAmount] = useState("");
   const [copied, setCopied] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+  const [depositSuccess, setDepositSuccess] = useState(false);
 
   const depositMethods = [
     { icon: "business-outline", label: "Bank Transfer", desc: "1-2 business days", badge: "Free" },
@@ -785,13 +787,21 @@ const DepositScreen = ({ onAddMoney }: { onAddMoney: (amt: number) => void }) =>
   ];
 
   const handleDepositClick = (methodLabel: string) => {
-    const val = parseFloat(window.prompt("Enter deposit amount ($):", "100.00") || "");
-    if (val && !isNaN(val)) {
-      onAddMoney(val);
-      initialUser.balance += val;
-      alert(`Success! Deposited $${val.toFixed(2)} via ${methodLabel}`);
+    setSelectedMethod(methodLabel);
+    setAmount("");
+  };
+
+  const handleDepositConfirm = () => {
+    const val = parseFloat(amount);
+    if (!val || isNaN(val)) return;
+    onAddMoney(val);
+    setDepositSuccess(true);
+    setTimeout(() => {
+      setDepositSuccess(false);
+      setSelectedMethod(null);
+      setAmount("");
       goBack();
-    }
+    }, 1200);
   };
 
   return (
