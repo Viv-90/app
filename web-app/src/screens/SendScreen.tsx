@@ -2,12 +2,14 @@ import { useState, useMemo } from "react";
 import { useTheme } from "../ThemeContext";
 import { useAppNavigation } from "../context/NavigationContext";
 import { fonts } from "../theme";
-import { currentUser as initialUser, contacts, type Transaction } from "../data/mockData";
+import { contacts, type Transaction } from "../data/mockData";
 import { Ionicons } from "../components/Ionicons";
+import { useWallet } from "../context/WalletContext";
 
-export const SendScreen = ({ onAddTransaction }: { onAddTransaction: (tx: Omit<Transaction, "id" | "date" | "status">) => void }) => {
+export const SendScreen = () => {
   const { c } = useTheme();
   const { goBack, params } = useAppNavigation();
+  const { balance, addTransaction } = useWallet();
   const preselected = params?.to;
 
   const [step, setStep] = useState<"recipient" | "amount" | "confirm">(preselected ? "amount" : "recipient");
@@ -36,7 +38,7 @@ export const SendScreen = ({ onAddTransaction }: { onAddTransaction: (tx: Omit<T
   const handleSend = () => {
     setSending(true);
     setTimeout(() => {
-      onAddTransaction({
+      addTransaction({
         type: "sent",
         name: selectedContact.name,
         username: selectedContact.username,
@@ -44,8 +46,6 @@ export const SendScreen = ({ onAddTransaction }: { onAddTransaction: (tx: Omit<T
         amount: parseFloat(amount),
         note: note,
       });
-      // Deduct balance
-      initialUser.balance -= parseFloat(amount);
       goBack();
     }, 1500);
   };
@@ -174,6 +174,11 @@ export const SendScreen = ({ onAddTransaction }: { onAddTransaction: (tx: Omit<T
             style={{ width: "70%", textAlign: "center", padding: "10px 0", borderBottom: `2px solid ${c.border}`, fontSize: "15px", color: c.foreground, marginBottom: "32px" }}
           />
 
+          <div style={{ display: "flex", gap: "6px", marginBottom: "16px", fontSize: "13px" }}>
+            <span style={{ color: c.mutedForeground }}>Available balance:</span>
+            <span style={{ fontWeight: "700", color: c.foreground }}>${balance.toFixed(2)}</span>
+          </div>
+
           {/* Keypad */}
           <div style={{ display: "flex", flexWrap: "wrap", maxWidth: "280px", width: "100%", marginBottom: "32px" }}>
             {["1","2","3","4","5","6","7","8","9",".","0","del"].map((key) => (
@@ -196,7 +201,7 @@ export const SendScreen = ({ onAddTransaction }: { onAddTransaction: (tx: Omit<T
           </div>
 
           <button
-            disabled={!amount || parseFloat(amount) === 0}
+            disabled={!amount || parseFloat(amount) === 0 || parseFloat(amount) > balance}
             onClick={() => setStep("confirm")}
             style={{
               width: "100%",
@@ -207,10 +212,10 @@ export const SendScreen = ({ onAddTransaction }: { onAddTransaction: (tx: Omit<T
               fontWeight: "700",
               fontSize: "16px",
               boxShadow: "0 10px 20px rgba(26, 158, 122, 0.15)",
-              opacity: (!amount || parseFloat(amount) === 0) ? 0.4 : 1,
+              opacity: (!amount || parseFloat(amount) === 0 || parseFloat(amount) > balance) ? 0.4 : 1,
             }}
           >
-            Continue
+            {parseFloat(amount) > balance ? "Insufficient Balance" : "Continue"}
           </button>
         </div>
       )}

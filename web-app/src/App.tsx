@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { fonts } from "./theme";
 import { ThemeProvider, useTheme } from "./ThemeContext";
 import { NavigationProvider, useAppNavigation } from "./context/NavigationContext";
-import { initialTransactions, type Transaction } from "./data/mockData";
+import { WalletProvider, useWallet } from "./context/WalletContext";
 import { Ionicons } from "./components/Ionicons";
 
 // Import Extracted Screens
@@ -25,48 +24,21 @@ import { NotificationsScreen } from "./screens/NotificationsScreen";
 const AppSimulator = () => {
   const { c, theme, setTheme } = useTheme();
   const { currentScreen, activeTab, setActiveTab, navigate } = useAppNavigation();
-
-  // Unified global transactions log
-  const [txs, setTxs] = useState<Transaction[]>(initialTransactions);
-
-  const handleAddTransaction = (newTx: Omit<Transaction, "id" | "date" | "status">) => {
-    const formatted: Transaction = {
-      ...newTx,
-      id: `t_${Date.now()}`,
-      date: "Just now",
-      status: "completed",
-    };
-    setTxs((p) => [formatted, ...p]);
-  };
-
-  const handleAddMoney = (amt: number) => {
-    const formatted: Transaction = {
-      id: `t_${Date.now()}`,
-      type: "received",
-      name: "Stellar Deposit",
-      username: "@stellar",
-      avatar: "https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&q=80&w=200&h=200",
-      amount: amt,
-      note: "Deposited via Stellar Anchor Middleware",
-      date: "Just now",
-      status: "completed",
-    };
-    setTxs((p) => [formatted, ...p]);
-  };
+  const { transactions, deposit } = useWallet();
 
   // Render correct page
   const renderScreen = () => {
     let content;
     switch (currentScreen) {
       case "Tabs":
-        if (activeTab === "Home") content = <HomeScreen txs={txs} />;
-        else if (activeTab === "Send") content = <SendScreen onAddTransaction={handleAddTransaction} />;
-        else if (activeTab === "Activity") content = <ActivityScreen txs={txs} />;
+        if (activeTab === "Home") content = <HomeScreen txs={transactions} />;
+        else if (activeTab === "Send") content = <SendScreen />;
+        else if (activeTab === "Activity") content = <ActivityScreen txs={transactions} />;
         else if (activeTab === "Profile") content = <ProfileScreen />;
-        else content = <HomeScreen txs={txs} />;
+        else content = <HomeScreen txs={transactions} />;
         break;
       case "Deposit":
-        content = <DepositScreen onAddMoney={handleAddMoney} />;
+        content = <DepositScreen onAddMoney={(amt) => deposit(amt, "Stellar Deposit")} />;
         break;
       case "Withdraw":
         content = <WithdrawScreen />;
@@ -78,13 +50,13 @@ const AppSimulator = () => {
         content = <InvestScreen />;
         break;
       case "TransactionDetail":
-        content = <TransactionDetailScreen txs={txs} />;
+        content = <TransactionDetailScreen txs={transactions} />;
         break;
       case "Notifications":
         content = <NotificationsScreen />;
         break;
       default:
-        content = <HomeScreen txs={txs} />;
+        content = <HomeScreen txs={transactions} />;
     }
     return (
       <AnimatePresence mode="wait">
@@ -199,13 +171,15 @@ export default function App() {
   return (
     <ThemeProvider>
       <NavigationProvider>
-        {/* Glow elements in the background constrained to viewport bounds */}
-        <div className="glow-wrapper">
-          <div className="web-bg-glow" style={{ top: "10%", left: "20%" }} />
-          <div className="web-bg-glow-2" style={{ bottom: "10%", right: "20%" }} />
-        </div>
-        
-        <AppSimulator />
+        <WalletProvider>
+          {/* Glow elements in the background constrained to viewport bounds */}
+          <div className="glow-wrapper">
+            <div className="web-bg-glow" style={{ top: "10%", left: "20%" }} />
+            <div className="web-bg-glow-2" style={{ bottom: "10%", right: "20%" }} />
+          </div>
+          
+          <AppSimulator />
+        </WalletProvider>
       </NavigationProvider>
     </ThemeProvider>
   );

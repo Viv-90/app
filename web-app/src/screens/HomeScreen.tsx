@@ -8,10 +8,12 @@ import { ActionButtons } from "../components/ActionButtons";
 import { QuickContacts } from "../components/QuickContacts";
 import { TransactionItem } from "../components/TransactionItem";
 import { type Transaction } from "../data/mockData";
+import { useWallet } from "../context/WalletContext";
 
 export const HomeScreen = ({ txs }: { txs: Transaction[] }) => {
   const { c } = useTheme();
   const { navigate } = useAppNavigation();
+  const { balance } = useWallet();
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
@@ -55,7 +57,7 @@ export const HomeScreen = ({ txs }: { txs: Transaction[] }) => {
       <div className="dashboard-grid">
         {/* Left main column */}
         <div>
-          <BalanceCard balance={initialUser.balance} />
+          <BalanceCard balance={balance} />
           <ActionButtons />
           <QuickContacts />
         </div>

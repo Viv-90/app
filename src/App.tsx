@@ -1,8 +1,6 @@
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Features from './components/Features';
-import QuoteCalculator from './components/QuoteCalculator';
-import AnchorSimulator from './components/AnchorSimulator';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
 
@@ -30,8 +28,6 @@ function App() {
       <main style={{ position: 'relative', zIndex: 1 }}>
         <Hero />
         <Features />
-        <QuoteCalculator />
-        <AnchorSimulator />
         <Testimonials />
       </main>
       <Footer />

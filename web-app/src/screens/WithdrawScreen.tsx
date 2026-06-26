@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useTheme } from "../ThemeContext";
 import { useAppNavigation } from "../context/NavigationContext";
-import { currentUser as initialUser } from "../data/mockData";
 import { Ionicons } from "../components/Ionicons";
 import { fonts, shadows } from "../theme";
+import { useWallet } from "../context/WalletContext";
 
 export const WithdrawScreen = () => {
   const { c } = useTheme();
   const { goBack } = useAppNavigation();
+  const { balance, withdraw } = useWallet();
 
   const banks = [
     { id: "1", name: "Chase Bank", last4: "4821" },
@@ -17,14 +18,16 @@ export const WithdrawScreen = () => {
   const [selected, setSelected] = useState(banks[0].id);
   const [amount, setAmount] = useState("");
 
+  const selectedBank = banks.find((b) => b.id === selected) || banks[0];
+
   const handleWithdraw = () => {
     const val = parseFloat(amount);
-    if (val > initialUser.balance) {
+    if (val > balance) {
       alert("Error: Insufficient balance!");
       return;
     }
-    initialUser.balance -= val;
-    alert(`Success! Withdrew $${val.toFixed(2)} to Chase Bank.`);
+    withdraw(val, selectedBank.name);
+    alert(`Success! Withdrew $${val.toFixed(2)} to ${selectedBank.name}.`);
     goBack();
   };
 
@@ -84,6 +87,11 @@ export const WithdrawScreen = () => {
           </div>
         ))}
 
+        <div style={{ display: "flex", gap: "6px", marginTop: "16px", fontSize: "13px" }}>
+          <span style={{ color: c.mutedForeground }}>Available balance:</span>
+          <span style={{ fontWeight: "700", color: c.foreground }}>${balance.toFixed(2)}</span>
+        </div>
+
         <div style={{ fontSize: "12px", fontWeight: "700", color: c.mutedForeground, letterSpacing: "1.5px", marginTop: "32px", marginBottom: "16px" }}>
           AMOUNT TO WITHDRAW
         </div>
@@ -99,7 +107,7 @@ export const WithdrawScreen = () => {
         </div>
 
         <button
-          disabled={!amount || parseFloat(amount) === 0}
+          disabled={!amount || parseFloat(amount) === 0 || parseFloat(amount) > balance}
           onClick={handleWithdraw}
           style={{
             width: "100%",
@@ -110,10 +118,10 @@ export const WithdrawScreen = () => {
             fontWeight: "700",
             fontSize: "16px",
             boxShadow: "0 10px 20px rgba(26, 158, 122, 0.15)",
-            opacity: (!amount || parseFloat(amount) === 0) ? 0.4 : 1,
+            opacity: (!amount || parseFloat(amount) === 0 || parseFloat(amount) > balance) ? 0.4 : 1,
           }}
         >
-          Confirm Withdrawal
+          {parseFloat(amount) > balance ? "Insufficient Balance" : "Confirm Withdrawal"}
         </button>
       </div>
     </div>
