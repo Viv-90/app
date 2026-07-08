@@ -11,6 +11,8 @@ type WalletContextType = {
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:8080";
+
 export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
   const [balance, setBalance] = useState(initialUser.balance);
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
@@ -32,7 +34,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
 
   const deposit = async (amount: number, method: string) => {
     try {
-      const res = await fetch("http://localhost:8080/api/v1/anchor/deposit", {
+      const res = await fetch(`${API_BASE_URL}/api/v1/anchor/deposit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -63,7 +65,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
 
   const withdraw = async (amount: number, bank: string) => {
     try {
-      const res = await fetch("http://localhost:8080/api/v1/anchor/withdraw", {
+      const res = await fetch(`${API_BASE_URL}/api/v1/anchor/withdraw`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
